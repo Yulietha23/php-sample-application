@@ -1,0 +1,58 @@
+<?php
+// Configuración de conexión a la base de datos
+$servername = "db";  // Nombre del servicio en docker-compose.yml
+$username = "user";  // Usuario de la base de datos
+$password = "password";  // Contraseña de la base de datos
+$database = "mydatabase";  // Nombre de la base de datos
+
+// Crear la conexión
+$conn = new mysqli($servername, $username, $password, $database);
+
+// Verificar la conexión
+if ($conn->connect_error) {
+    die("Conexión fallida: " . $conn->connect_error);
+}
+echo "Conectado exitosamente<br>";
+
+// Crear una tabla si no existe
+$sql_create_table = "CREATE TABLE IF NOT EXISTS users (
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    firstname VARCHAR(30) NOT NULL,
+    lastname VARCHAR(30) NOT NULL,
+    email VARCHAR(50),
+    reg_date TIMESTAMP
+)";
+
+if ($conn->query($sql_create_table) === TRUE) {
+    echo "Tabla 'users' creada exitosamente o ya existe.<br>";
+} else {
+    echo "Error al crear la tabla: " . $conn->error . "<br>";
+}
+
+// Insertar un nuevo registro en la tabla
+$sql_insert = "INSERT INTO users (firstname, lastname, email)
+VALUES ('John', 'Doe', 'john@example.com')";
+
+if ($conn->query($sql_insert) === TRUE) {
+    echo "Nuevo registro creado exitosamente.<br>";
+} else {
+    echo "Error al insertar el registro: " . $conn->error . "<br>";
+}
+
+// Leer los datos de la tabla
+$sql_select = "SELECT id, firstname, lastname, email FROM users";
+$result = $conn->query($sql_select);
+
+if ($result->num_rows > 0) {
+    // Mostrar los datos
+    echo "<h3>Lista de usuarios:</h3>";
+    while($row = $result->fetch_assoc()) {
+        echo "ID: " . $row["id"] . " - Nombre: " . $row["firstname"] . " " . $row["lastname"] . " - Email: " . $row["email"] . "<br>";
+    }
+} else {
+    echo "No se encontraron registros.<br>";
+}
+
+// Cerrar la conexión
+$conn->close();
+?>
